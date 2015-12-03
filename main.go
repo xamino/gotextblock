@@ -2,17 +2,18 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"text/template"
 )
 
-var templates = template.Must(template.ParseFiles("bin/pages/error.html"))
+var templates = template.Must(template.ParseFiles("bin/pages/error.html", "bin/pages/index.html"))
 
 func main() {
 	log.Println("Starting server.")
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/script", scriptHandler)
 	http.HandleFunc("/error", func(w http.ResponseWriter, r *http.Request) {
 		renderError(w, "test error", errors.New("test error, please ignore"))
 	})
@@ -27,10 +28,28 @@ func main() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	// catch any non-index accessess
 	if r.RequestURI != "/" {
+		w.WriteHeader(http.StatusNotFound)
 		renderError(w, "page doesn't exist", errors.New("no handler defined"))
 		return
 	}
-	fmt.Fprintf(w, "<html><head><title>Test</title></head><body>Hello World!</br>User Agent: %s</br>Referer: %s</br><a href=\"http://localhost:8000/error\">Click here to see an error.</a></body></html>", r.UserAgent(), r.Referer())
+	err := templates.ExecuteTemplate(w, "index.html", nil)
+	if err != nil {
+		renderError(w, "server error", err)
+		return
+	}
+}
+
+func scriptHandler(w http.ResponseWriter, r *http.Request) {
+	data, err := ioutil.ReadFile("bin/pages/script.js")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		renderError(w, "failed to fetch resources", err)
+		return
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println("Failed to write script data:", err)
+	}
 }
 
 /*
