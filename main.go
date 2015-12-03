@@ -12,7 +12,7 @@ var templates = template.Must(template.ParseFiles("bin/pages/error.html", "bin/p
 
 func main() {
 	log.Println("Starting server.")
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/script", scriptHandler)
 	http.HandleFunc("/error", func(w http.ResponseWriter, r *http.Request) {
 		renderError(w, "test error", errors.New("test error, please ignore"))
@@ -25,7 +25,10 @@ func main() {
 	log.Println("Stopping server.")
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+/*
+rootHandler handles the index page.
+*/
+func rootHandler(w http.ResponseWriter, r *http.Request) {
 	// catch any non-index accessess
 	if r.RequestURI != "/" {
 		w.WriteHeader(http.StatusNotFound)
@@ -39,6 +42,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+scriptHandler allows the client to fetch the script for the html files.
+*/
 func scriptHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadFile("bin/pages/script.js")
 	if err != nil {
