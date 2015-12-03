@@ -6,10 +6,22 @@
         <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="script"></script>
     </head>
-    <body>
+    <body onload="prepare()">
         <h1>TODO</h1>
-        <p onclick="test()">
+        <p>
             Instruction text here. Experiment here with drag and drop.
         </p>
+        <p onclick="test()">
+            <strong>Click me for hello world.</strong>
+        </p>
+        <p id="output" style="background-color:black;color:white">
+            Console line. Dynamic text will be placed here.
+        </p>
+        <div draggable="true">
+            Drag me!
+        </div>
+        <div draggable="true">
+            This is a draggable text too!
+        </div>
     </body>
 </html>
